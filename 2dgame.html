@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f0f0f0; /* Oyin fon rangi */
+        }
+
+        canvas {
+            display: block;
+            margin: auto;
+            border: 2px solid #333; /* Canvas chegarasi rangi */
+            background-color: #fff; /* Canvas fon rangi */
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height - 30,
+            width: 50,
+            height: 50,
+            speed: 5,
+            color: 'blue'
+        };
+
+        const enemies = [];
+
+        function drawPlayer() {
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function drawEnemies() {
+            for (const enemy of enemies) {
+                ctx.fillStyle = 'red';
+                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+            }
+        }
+
+        function update() {
+            if (keys['ArrowLeft'] && player.x > 0) {
+                player.x -= player.speed;
+            }
+            if (keys['ArrowRight'] && player.x < canvas.width - player.width) {
+                player.x += player.speed;
+            }
+
+            // Create new enemy
+            if (Math.random() < 0.02) {
+                const newEnemy = {
+                    x: Math.random() * canvas.width,
+                    y: 0,
+                    width: 30,
+                    height: 30,
+                    speed: 2
+                };
+                enemies.push(newEnemy);
+            }
+
+            // Move enemies
+            for (const enemy of enemies) {
+                enemy.y += enemy.speed;
+
+                // Check collision with player
+                if (
+                    player.x < enemy.x + enemy.width &&
+                    player.x + player.width > enemy.x &&
+                    player.y < enemy.y + enemy.height &&
+                    player.y + player.height > enemy.y
+                ) {
+                    alert('Oyin tugadi!'); // Change this to your game over logic
+                    location.reload(); // Restart the game
+                }
+
+                // Remove enemies when they go off the screen
+                if (enemy.y > canvas.height) {
+                    const index = enemies.indexOf(enemy);
+                    enemies.splice(index, 1);
+                }
+            }
+
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the player
+            drawPlayer();
+
+            // Draw the enemies
+            drawEnemies();
+
+            requestAnimationFrame(update);
+        }
+
+        // Keyboard input handling
+        const keys = {};
+
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        update(); // Start the game loop
+    </script>
+
+</body>
+</html>
